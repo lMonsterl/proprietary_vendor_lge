@@ -1,0 +1,32 @@
+#!/system/bin/sh
+
+cid=$6
+
+/system/bin/setprop "net.interfaces.defaultroute" "gprs"
+
+/system/bin/setprop "net.pdp$cid.iface" "$1"
+/system/bin/setprop "net.$1.dns1" "$DNS1"
+/system/bin/setprop "net.$1.dns2" "$DNS2"
+/system/bin/setprop "net.$1.gw" "$IPREMOTE"
+
+# Use interface name  if linkname is not available
+NAME=${LINKNAME:-"$1"}
+
+/system/bin/log -t pppd "ip_up: cid=$cid iface=$1 ip=$IPLOCAL remote=$IPREMOTE dns1=$DNS1 dns2=$DNS2"
+
+/system/bin/setprop "net.$NAME.local-ip" "$IPLOCAL" 
+/system/bin/setprop "net.$NAME.remote-ip" "$IPREMOTE" 
+
+# Use this property to check that pppd has finished startup
+/system/bin/setprop "net.$1.status" "started"
+
+# If network doesn't provide DNS addesses then use public DNS addresses
+if /system/bin/busybox test -z "$DNS1"; then
+    /system/bin/log -t pppd "ip_up: setting dns1 to 208.67.222.222"
+    /system/bin/setprop "net.$1.dns1" "208.67.222.222"
+fi
+
+if /system/bin/busybox test -z "$DNS2"; then
+    /system/bin/log -t pppd "ip_up: setting dns2 to 208.67.220.220"
+    /system/bin/setprop "net.$1.dns2" "208.67.220.220"
+fi

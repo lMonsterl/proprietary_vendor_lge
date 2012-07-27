@@ -1,0 +1,11 @@
+#!/system/bin/sh
+
+cid=$6
+
+/system/bin/setprop "net.pdp$cid.iface" ""
+/system/bin/setprop "net.$1.dns1" ""
+/system/bin/setprop "net.$1.dns2" ""
+/system/bin/setprop "net.$1.gw" ""
+/system/bin/setprop "net.$1.status" ""
+
+/system/bin/log -t pppd "ip_down: cid=$cid iface=$1"
